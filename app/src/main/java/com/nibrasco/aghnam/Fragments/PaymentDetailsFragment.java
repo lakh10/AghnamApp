@@ -33,8 +33,11 @@ import com.nibrasco.aghnam.Utils.GMailSender;
 public class PaymentDetailsFragment extends Fragment {
     private TextView txtCount, txtTotal;
     TextInputEditText edtAccount;
-    private Button btnConfirm, btnUpload;
+    private Button btnConfirm;
+
     Cart cart;
+
+
     public PaymentDetailsFragment() {
         // Required empty public constructor
         cart = Session.getInstance().Cart();
@@ -43,6 +46,7 @@ public class PaymentDetailsFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
     }
 
     @Override
@@ -63,7 +67,7 @@ public class PaymentDetailsFragment extends Fragment {
         txtTotal = (TextView)v.findViewById(com.nibrasco.aghnam.R.id.txtOrderTotal);
         edtAccount = (TextInputEditText)v.findViewById(com.nibrasco.aghnam.R.id.edtPaymentAccount);
         btnConfirm = (Button)v.findViewById(com.nibrasco.aghnam.R.id.btnPaymentConfirm);
-        btnUpload = (Button)v.findViewById(R.id.btnUpload);
+
     }
     private void LoadContent(View v){
         LinkControls(v);
@@ -115,15 +119,7 @@ public class PaymentDetailsFragment extends Fragment {
                 }
             }
         });
-        btnUpload.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivityForResult(new Intent(Intent.ACTION_PICK)
-                                .setType("image/*"),
-                        1
-                );
-            }
-        });
+
     }
 
     @Override
