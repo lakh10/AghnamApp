@@ -1,14 +1,18 @@
 package com.nibrasco.aghnam.Activities;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -19,11 +23,12 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.nibrasco.aghnam.Model.Session;
 import com.nibrasco.aghnam.R;
 
 import java.io.IOException;
 
-public class Recu extends AppCompatActivity implements View.OnClickListener /*  implementing click listener */ {
+public class RecuFragment extends Fragment implements View.OnClickListener /*  implementing click listener */ {
     //a constant to track the file chooser intent
     private static final int PICK_IMAGE_REQUEST = 234;
 
@@ -38,17 +43,31 @@ public class Recu extends AppCompatActivity implements View.OnClickListener /*  
 
     //a Uri object to store file path
     private Uri filePath;
+    String cartId = "";
+
+    public RecuFragment(){
+        cartId = Session.getInstance().User().getCart();
+    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_recu);
+    public void onStart() {
+        super.onStart();
+        final View v = getView();
+        LinkControls(v);
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.activity_recu, container, false);
+    }
+    private void LinkControls(View v){
 
         //getting views from layout
-        buttonChoose = (Button) findViewById(R.id.buttonChoose);
-        buttonUpload = (Button) findViewById(R.id.buttonUpload);
+        buttonChoose = (Button) v.findViewById(R.id.buttonChoose);
+        buttonUpload = (Button) v.findViewById(R.id.buttonUpload);
 
-        imageView = (ImageView) findViewById(R.id.imageView);
+        imageView = (ImageView) v.findViewById(R.id.imageView);
 
         //attaching listener
         buttonChoose.setOnClickListener(this);
@@ -67,10 +86,11 @@ public class Recu extends AppCompatActivity implements View.OnClickListener /*  
         //if there is a file to upload
         if (filePath != null) {
             //displaying a progress dialog while upload is going on
-            final ProgressDialog progressDialog = new ProgressDialog(this);
+            final ProgressDialog progressDialog = new ProgressDialog(getContext());
             progressDialog.setTitle("Uploading");
             progressDialog.show();
-            StorageReference riversRef = storageReference.child("images/pic.jpg");
+
+            StorageReference riversRef = storageReference.child("images/receit_"+ cartId +".jpg");
             riversRef.putFile(filePath)
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
@@ -80,7 +100,7 @@ public class Recu extends AppCompatActivity implements View.OnClickListener /*  
                             progressDialog.dismiss();
 
                             //and displaying a success toast
-                            Toast.makeText(getApplicationContext(), "File Uploaded ", Toast.LENGTH_LONG).show();
+                            Toast.makeText(getContext().getApplicationContext(), "File Uploaded ", Toast.LENGTH_LONG).show();
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
@@ -91,7 +111,7 @@ public class Recu extends AppCompatActivity implements View.OnClickListener /*  
                             progressDialog.dismiss();
 
                             //and displaying error message
-                            Toast.makeText(getApplicationContext(), exception.getMessage(), Toast.LENGTH_LONG).show();
+                            Toast.makeText(getContext().getApplicationContext(), exception.getMessage(), Toast.LENGTH_LONG).show();
                         }
                     })
                     .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
@@ -113,12 +133,12 @@ public class Recu extends AppCompatActivity implements View.OnClickListener /*  
 
     //handling the image chooser activity result
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
+        if (requestCode == PICK_IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data != null && data.getData() != null) {
             filePath = data.getData();
             try {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), filePath);
                 imageView.setImageBitmap(bitmap);
 
             } catch (IOException e) {

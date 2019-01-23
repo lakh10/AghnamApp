@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import com.google.firebase.database.*;
+import com.nibrasco.aghnam.Activities.RecuFragment;
 import com.nibrasco.aghnam.Model.*;
 import com.nibrasco.aghnam.R;
 import com.nibrasco.aghnam.Utils.RecyclerCartItemAdapter;
@@ -109,7 +110,7 @@ public class CartFragment extends Fragment {
         View.OnClickListener shippingListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MapsFragment f = new MapsFragment();
+                RecuFragment f = new RecuFragment();
                 assert getFragmentManager() != null;
                 FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
                 fragmentTransaction.replace(R.id.homeContainer, f);

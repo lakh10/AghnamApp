@@ -21,6 +21,7 @@ import com.google.firebase.database.*;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.nibrasco.aghnam.Activities.RecuFragment;
 import com.nibrasco.aghnam.Model.Cart;
 import com.nibrasco.aghnam.Model.Session;
 import com.nibrasco.aghnam.Model.User;
@@ -81,42 +82,7 @@ public class PaymentDetailsFragment extends Fragment {
         btnConfirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                try {
-                    String message = getResources().getString(com.nibrasco.aghnam.R.string.msgPaymentSaving);
-                    Snackbar snackbar = Snackbar.make(v, message, Snackbar.LENGTH_LONG);
-                    snackbar.show();
-                    if (new MailTask().execute().get()) {
-                        String Account = edtAccount.getText().toString();
-
-                        cart.setBankAccount(Account);
-
-                        FirebaseDatabase db = FirebaseDatabase.getInstance();
-                        final DatabaseReference tblCart = db.getReference("Cart");
-                        final DatabaseReference tblUser = db.getReference("User");
-                        final User user = Session.getInstance().User();
-
-                        String cartId = user.getCart(),
-                                usrId = user.getPhone();
-
-                        cart.MapToDbRef(tblCart.child(cartId));
-                        user.AddOrder(cartId);
-                        user.setCart("0");
-
-                        user.MapToDbRef(tblUser.child(usrId));
-                        Session.getInstance().User(user);
-                        Session.getInstance().Cart(new Cart(cart.getAddress()));
-                        snackbar.dismiss();
-
-                        CartFragment cartFragment = new CartFragment();
-                        getActivity()
-                                .getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.homeContainer, cartFragment)
-                                .addToBackStack(null)
-                                .commit();
-                    }
-                }catch(Exception e){
-                    Log.e(PaymentDetailsFragment.class.getName(), e.getMessage());
-                }
+                ConfirmOrder();
             }
         });
 
@@ -174,6 +140,44 @@ public class PaymentDetailsFragment extends Fragment {
         @Override
         protected Boolean doInBackground(Void... voids) {
             return SendMail();
+        }
+    }
+    void ConfirmOrder(){
+        try {
+            String message = getResources().getString(com.nibrasco.aghnam.R.string.msgPaymentSaving);
+            Snackbar snackbar = Snackbar.make(getView(), message, Snackbar.LENGTH_LONG);
+            snackbar.show();
+            if (new MailTask().execute().get()) {
+                String Account = edtAccount.getText().toString();
+
+                cart.setBankAccount(Account);
+
+                FirebaseDatabase db = FirebaseDatabase.getInstance();
+                final DatabaseReference tblCart = db.getReference("Cart");
+                final DatabaseReference tblUser = db.getReference("User");
+                final User user = Session.getInstance().User();
+
+                String cartId = user.getCart(),
+                        usrId = user.getPhone();
+
+                cart.MapToDbRef(tblCart.child(cartId));
+                user.AddOrder(cartId);
+                user.setCart("0");
+
+                user.MapToDbRef(tblUser.child(usrId));
+                Session.getInstance().User(user);
+                Session.getInstance().Cart(new Cart(cart.getAddress()));
+                snackbar.dismiss();
+
+                RecuFragment cartFragment = new RecuFragment();
+                getActivity()
+                        .getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.homeContainer, cartFragment)
+                        .addToBackStack(null)
+                        .commit();
+            }
+        }catch(Exception e){
+            Log.e(PaymentDetailsFragment.class.getName(), e.getMessage());
         }
     }
 }
